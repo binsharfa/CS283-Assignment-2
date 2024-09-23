@@ -66,10 +66,10 @@ class TransformerBlock(nn.Module):
 
        # Apply mask if provided
         if mask is not None:
-            # Ensure the mask shape matches attention scores
-            # Mask shape should be (batch_size, 1, seq_len, seq_len) for multi-head attention
-            mask = mask.unsqueeze(1)  # Add a dimension for the heads
+            # Ensure mask is the correct size: (batch_size, 1, seq_len, seq_len)
+            mask = mask.unsqueeze(1).expand(-1, self.heads, -1, -1)
             attn_scores = attn_scores.masked_fill(mask == float('-inf'), float('-inf'))
+
         # Apply softmax to get attention weights
         attn_weights = F.softmax(attn_scores, dim=-1)  # Shape: (batch_size, heads, seq_len, seq_len)
         # Apply dropout to attention weights
